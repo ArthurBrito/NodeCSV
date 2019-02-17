@@ -1,55 +1,54 @@
-const CSVToJSON = require("csvtojson");
-const JSONToCSV = require("json2csv").parse;
-const FileSystem = require("fs");
+const ps = require('./population.service')
+const csv = require('./csv.service')
 
-CSVToJSON().fromFile("./worldcities.csv").then(source => {
-  const data = source.map(row => ({city: row.city, population: row.population }))
-
-  console.log('The average population is:', calculateAveragePopulation(data)) 
-  console.log('The smallest city is:', findSmallestPopulation(data)) 
-  console.log('The Biggest city is:', findBiggestPopulation(data))
-  saveData(data)
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
 })
 
-function calculateAveragePopulation(data) {
-  data = data.filter(data => data.population) // remove cities that don't have population
-  const total = data.map(row => parseInt(row.population)).reduce((acc, value) => acc + value)
-  return Math.round(total/data.length)
-}
+csv.cityAndPopulationCSV().then(data => menu(data))
 
-function findSmallestPopulation(data) {
-  let lowestNumber
-  let lowestCity
+function menu(data) {
+  readline.question(
+  `Type
+    a - Average
+    s - Smallest city population
+    b - Biggest city population
+    f - Save file
+    Default - All infos
+  `, key => {
+    switch (key) {
+      case 'a':
+        console.log('The average population is:', ps.calculateAveragePopulation(data)) 
+        readline.close()
+        break;
 
-  for (let index = 0; index < data.length; index++) {
-    const element = data[index];
-    if(element.population === '')
-      continue
-    if(parseInt(element.population) < lowestNumber || lowestNumber === undefined) {
-      lowestNumber = parseInt(element.population)
-      lowestCity = element.city
-    }
-  }
-  return lowestCity
-}
+      case 's':
+        console.log('The smallest city is:', ps.findSmallestPopulation(data)) 
+        readline.close()
+        break;
 
-function findBiggestPopulation(data) {
-  let highestNumber
-  let biggestCity
+      case 'b':
+        console.log('The Biggest city is:', ps.findBiggestPopulation(data))
+        readline.close()
+        break;
 
-  for (let index = 0; index < data.length; index++) {
-    const element = data[index];
-    if(element.population === '')
-      continue
-    if(parseInt(element.population) > highestNumber || highestNumber === undefined) {
-      highestNumber = parseInt(element.population)
-      biggestCity = element.city
-    }
-  }
-  return biggestCity
-}
-
-function saveData(source) {
-  const csv = JSONToCSV(source, { fields: ["city", "population"]});
-  FileSystem.writeFileSync("./result.csv", csv);
+      case 'f':
+        readline.question(`
+          What is the name of the file?
+          `, name => {
+            csv.saveData(data, name)
+            readline.close()
+          })
+        break;
+    
+      default:
+        console.log('The average population is:', ps.calculateAveragePopulation(data)) 
+        console.log('The smallest city is:', ps.findSmallestPopulation(data)) 
+        console.log('The Biggest city is:', ps.findBiggestPopulation(data))
+        csv.saveData(data)
+        readline.close()
+        break;
+    }  
+  })
 }
