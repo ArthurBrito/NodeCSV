@@ -1,12 +1,19 @@
 
-This is a practical programming test using Node.js.
+### Run the code
+To run the code 
 
-Time limit: 24 hours
+```sh
+$ npm i
+$ node index
+```
 
-Please feel free to use Google.
-Feel free to ask questions to clarify requirements.
-Install what ever libraries will help you do the job (or just write code from scratch).
+### Special features
+- Menu
+- Change name of the file
 
+### This is a practical programming test using Node.js.
+
+### Basic features
 - Load the data file (worldcities.csv).
 - Simplify the data so it only contains city and population.
 - Write simplified data to a new file.
